@@ -1,0 +1,11 @@
+{
+  "modelVersion": "4.1.0",
+  "name": "nas-assistant",
+  "version": "1.0.0",
+  "description": "NAS 助手 —— 连接铁威马 NAS 的鸿蒙小工具",
+  "main": "",
+  "author": "",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {}
+}

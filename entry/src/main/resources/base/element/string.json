@@ -1,0 +1,16 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "NAS 助手主模块"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "连接铁威马 NAS 的小工具"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "NAS助手"
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+#!/bin/sh
+exec /home/dsh/dsh-stack/node/bin/node "$(dirname "$0")/node_modules/@ohos/hvigor/bin/hvigor.js" "$@"
