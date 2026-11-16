@@ -1,0 +1,95 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  SDK_VERSION: 4.1.7.5-Release
+  SDK_URL: https://repo.huaweicloud.com/openharmony/os/4.1-Release/ohos-sdk-windows_linux-public.tar.gz
+  HVIGOR_VERSION: 4.1.2
+
+jobs:
+  hap:
+    name: 编译 HAP
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装 JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: 安装 Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: 缓存 OpenHarmony SDK
+        uses: actions/cache@v4
+        with:
+          path: ~/ohos-sdk
+          key: ohos-sdk-${{ env.SDK_VERSION }}
+
+      - name: 准备 SDK
+        run: |
+          set -e
+          if [ -d "$HOME/ohos-sdk/11/ets" ]; then
+            echo "SDK 命中缓存，跳过下载"
+            exit 0
+          fi
+          echo "下载 SDK（约 2.3 GB，首次会慢）…"
+          curl -fL --retry 3 -o /tmp/ohos-sdk.tar.gz "$SDK_URL"
+          mkdir -p /tmp/sdk && tar xzf /tmp/ohos-sdk.tar.gz -C /tmp/sdk
+          mkdir -p "$HOME/ohos-sdk/11"
+          for z in /tmp/sdk/ohos-sdk/linux/*.zip; do
+            unzip -q -o "$z" -d "$HOME/ohos-sdk/11"
+          done
+          ls "$HOME/ohos-sdk/11"
+
+      - name: 安装 hvigor
+        run: |
+          npm i --no-audit --no-fund \
+            --registry=https://repo.harmonyos.com/npm/ \
+            @ohos/hvigor@${{ env.HVIGOR_VERSION }} \
+            @ohos/hvigor-ohos-plugin@${{ env.HVIGOR_VERSION }}
+
+      - name: 编译 HAP
+        run: |
+          export DEVECO_SDK_HOME="$HOME/ohos-sdk"
+          ./hvigorw assembleHap -p product=default -p buildMode=release --no-daemon
+
+      - name: 校验产物
+        run: |
+          HAP=$(find entry/build -name '*.hap' | head -1)
+          echo "hap: $HAP"
+          ls -lh "$HAP"
+          sha256sum "$HAP" | tee SHA256SUMS.txt
+
+      - name: 上传产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: nas-assistant-hap
+          path: |
+            entry/build/default/outputs/default/*.hap
+            SHA256SUMS.txt
+          if-no-files-found: error
+
+      # 只有在推 tag 时才发 Release（普通 push 只出 artifact）
+      - name: 发布 Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            entry/build/default/outputs/default/*.hap
+            SHA256SUMS.txt
+          generate_release_notes: true
