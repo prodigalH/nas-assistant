@@ -1,9 +1,9 @@
 {
   "app": {
-    "bundleName": "com.tnas.app",
+    "bundleName": "com.tnas.hap",
     "vendor": "dsh",
-    "versionCode": 1000002,
-    "versionName": "1.0.2",
+    "versionCode": 1000003,
+    "versionName": "1.0.3",
     "icon": "$media:app_icon",
     "label": "$string:app_name"
   }
