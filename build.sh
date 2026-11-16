@@ -1,9 +1,7 @@
 #!/bin/sh
-# 一条命令编译 hap。按你机器的路径改下面三个变量即可。
+# 一条命令编译 hap。依赖：OpenHarmony SDK 4.1.7.5、hvigor 4.1.2、JDK 17。
 set -e
-export DEVECO_SDK_HOME="${DEVECO_SDK_HOME:-/home/dsh/dsh-stack/deps/ohos/sdk}"
-export JAVA_HOME="${JAVA_HOME:-/home/dsh/dsh-stack/deps/jdk/jdk-17.0.21+9}"
-export PATH="$JAVA_HOME/bin:/home/dsh/dsh-stack/node/bin:$PATH"
+: "${DEVECO_SDK_HOME:?请先 export DEVECO_SDK_HOME=/path/to/sdk（里面应有 11/ets 等目录）}"
 MODE="${1:-release}"
 ./hvigorw assembleHap -p product=default -p buildMode="$MODE" --no-daemon
 echo
