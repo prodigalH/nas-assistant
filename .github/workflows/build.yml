@@ -77,10 +77,15 @@ jobs:
           echo "版本: $VERSION"
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           HAP=$(find entry/build -name '*.hap' | head -1)
-          cp "$HAP" "nas-assistant-${VERSION}-unsigned.hap"
-          tar czf "nas-assistant-${VERSION}-source.tar.gz" \
+          # 产物先放 workspace 外面：tar 打在被打包目录里会触发 "file changed as we read it"
+          OUT="$RUNNER_TEMP/out"
+          mkdir -p "$OUT"
+          cp "$HAP" "$OUT/nas-assistant-${VERSION}-unsigned.hap"
+          tar czf "$OUT/nas-assistant-${VERSION}-source.tar.gz" \
+            --warning=no-file-changed \
             --exclude=node_modules --exclude=.hvigor --exclude=build --exclude=.git .
-          sha256sum nas-assistant-* > SHA256SUMS
+          ( cd "$OUT" && sha256sum nas-assistant-* > SHA256SUMS )
+          cp "$OUT"/nas-assistant-* "$OUT"/SHA256SUMS .
           ls -lh nas-assistant-* SHA256SUMS
 
       - name: 上传产物
