@@ -3,6 +3,6 @@
 set -e
 : "${DEVECO_SDK_HOME:?请先 export DEVECO_SDK_HOME=/path/to/sdk（里面应有 11/ets 等目录）}"
 MODE="${1:-release}"
-./hvigorw assembleHap -p product=default -p buildMode="$MODE" --no-daemon
+sh ./hvigorw assembleHap -p product=default -p buildMode="$MODE" --no-daemon
 echo
 echo "产物：entry/build/default/outputs/default/entry-default-unsigned.hap"

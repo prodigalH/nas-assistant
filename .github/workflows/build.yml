@@ -66,7 +66,7 @@ jobs:
       - name: 编译 HAP
         run: |
           export DEVECO_SDK_HOME="$HOME/ohos-sdk"
-          ./hvigorw assembleHap -p product=default -p buildMode=release --no-daemon
+          sh ./hvigorw assembleHap -p product=default -p buildMode=release --no-daemon
 
       - name: 校验产物
         run: |
