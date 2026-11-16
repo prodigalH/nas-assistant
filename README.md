@@ -1,5 +1,8 @@
 # NAS 助手（nas-assistant）
 
+[![build](https://github.com/prodigalH/nas-assistant/actions/workflows/build.yml/badge.svg)](https://github.com/prodigalH/nas-assistant/actions/workflows/build.yml)
+
+
 一个连铁威马（TerraMaster）NAS 的鸿蒙小工具。用 ArkTS + Stage 模型写的，纯本地、无后端、不联网上报。
 
 > 目标很朴素：**在手机上快速确认家里的 NAS 活着没有，并且能翻一下共享目录。**
@@ -48,7 +51,21 @@ export PATH=/path/to/jdk-17/bin:$PATH
 # 产物：entry/build/default/outputs/default/entry-default-unsigned.hap
 ```
 
-或者直接跑 `./build.sh`（里面就是上面这几步，路径按需改）。
+或者直接跑 `./build.sh`（需要先 `export DEVECO_SDK_HOME=/path/to/sdk`）。
+
+### GitHub Actions
+
+推 `main` 会跑 [`.github/workflows/build.yml`](.github/workflows/build.yml)：
+
+1. 装 JDK 17 + Node 22；
+2. 从华为镜像拉 SDK（2.3 GB，**有缓存**，key 是 SDK 版本号，之后秒过）；
+3. 从华为 npm 源装 hvigor 4.1.2；
+4. `assembleHap` 出未签名 hap；
+5. 上传到 Actions artifact（`nas-assistant-hap`）；
+6. **推 tag（`v*`）时**自动发 Release 并附上 hap。
+
+想在 CI 里顺便签名，就把 `.p12/.cer/.p7b` 存成 repository secrets，
+在编译前 restore 出来、在 `build-profile.json5` 里指向它们即可（自行添加，本仓库不含签名材料）。
 
 ## ⚠️ 关于签名
 
