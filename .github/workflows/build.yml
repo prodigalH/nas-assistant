@@ -65,6 +65,9 @@ jobs:
 
       - name: 编译 HAP
         run: |
+          # hvigor 认这两者之一：local.properties 的 sdk.dir，或 OHOS_BASE_SDK_HOME
+          echo "sdk.dir=$HOME/ohos-sdk" > local.properties
+          export OHOS_BASE_SDK_HOME="$HOME/ohos-sdk"
           export DEVECO_SDK_HOME="$HOME/ohos-sdk"
           sh ./hvigorw assembleHap -p product=default -p buildMode=release --no-daemon
 
