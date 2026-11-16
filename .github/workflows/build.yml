@@ -71,20 +71,25 @@ jobs:
           export DEVECO_SDK_HOME="$HOME/ohos-sdk"
           sh ./hvigorw assembleHap -p product=default -p buildMode=release --no-daemon
 
-      - name: 校验产物
+      - name: 打包产物
         run: |
+          VERSION=$(grep -o '"versionName"[^,]*' AppScope/app.json5 | sed 's/.*"\([^"]*\)"$/\1/')
+          echo "版本: $VERSION"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           HAP=$(find entry/build -name '*.hap' | head -1)
-          echo "hap: $HAP"
-          ls -lh "$HAP"
-          sha256sum "$HAP" | tee SHA256SUMS.txt
+          cp "$HAP" "nas-assistant-${VERSION}-unsigned.hap"
+          tar czf "nas-assistant-${VERSION}-source.tar.gz" \
+            --exclude=node_modules --exclude=.hvigor --exclude=build --exclude=.git .
+          sha256sum nas-assistant-* > SHA256SUMS
+          ls -lh nas-assistant-* SHA256SUMS
 
       - name: 上传产物
         uses: actions/upload-artifact@v4
         with:
-          name: nas-assistant-hap
+          name: nas-assistant-${{ env.VERSION }}
           path: |
-            entry/build/default/outputs/default/*.hap
-            SHA256SUMS.txt
+            nas-assistant-*
+            SHA256SUMS
           if-no-files-found: error
 
       # 只有在推 tag 时才发 Release（普通 push 只出 artifact）
@@ -93,6 +98,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            entry/build/default/outputs/default/*.hap
-            SHA256SUMS.txt
+            nas-assistant-*
+            SHA256SUMS
+          overwrite_files: true
           generate_release_notes: true
